@@ -104,10 +104,12 @@ final class BP_XProfile_Field_For_Member_Types {
 		// Plugin
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 
-		// Fields
-		add_filter( 'bp_xprofile_get_hidden_fields_for_user', array( $this, 'filter_hidden_fields'              ), 10, 3 );
-		add_action( 'xprofile_field_after_submitbox',         array( $this, 'field_display_member_type_metabox' )        );
-		add_action( 'xprofile_field_after_save',              array( $this, 'field_save_member_type_metabox'    )        );
+		// Main Logic
+		add_filter( 'bp_xprofile_get_hidden_fields_for_user', array( $this, 'filter_hidden_fields' ), 10, 3 );
+
+		// Metabox
+		add_action( 'xprofile_field_after_submitbox', array( $this, 'field_display_member_type_metabox' ) );
+		add_action( 'xprofile_field_after_save',      array( $this, 'field_save_member_type_metabox'    ) );
 
 		// Fire plugin loaded hook
 		do_action( 'bp_xprofile_field_for_member_types_loaded' );
@@ -145,7 +147,7 @@ final class BP_XProfile_Field_For_Member_Types {
 		load_plugin_textdomain( $this->domain, false, 'bp-xprofile-field-for-member-types/languages' );
 	}
 
-	/** Filters ***************************************************************/
+	/** Main Logic ************************************************************/
 
 	/**
 	 * Return the field ids that are not visible for the displayed and current user
