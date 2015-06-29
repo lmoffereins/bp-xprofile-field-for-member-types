@@ -16,6 +16,7 @@
  * Version:           1.0.0
  * Author:            Laurens Offereins
  * Author URI:        https://github.com/lmoffereins
+ * Network:           true
  * Text Domain:       bp-xprofile-field-for-member-types
  * Domain Path:       /languages/
  * GitHub Plugin URI: lmoffereins/bp-xprofile-field-for-member-types
