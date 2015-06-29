@@ -397,6 +397,7 @@ final class BP_XProfile_Field_For_Member_Types {
 		$types = wp_list_pluck( $types, 'singular_name' );
 
 		if ( in_array( 'none', $member_types ) ) {
+			/* translators: 'No member type' selection */
 			$types = array_merge( array( __( 'None', 'bp-xprofile-field-for-member-types' ) ), $types );
 		}
 
