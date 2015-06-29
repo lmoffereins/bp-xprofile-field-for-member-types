@@ -111,6 +111,9 @@ final class BP_XProfile_Field_For_Member_Types {
 		add_action( 'xprofile_field_after_submitbox', array( $this, 'field_display_member_type_metabox' ) );
 		add_action( 'xprofile_field_after_save',      array( $this, 'field_save_member_type_metabox'    ) );
 
+		// Admin: Profile Fields
+		add_action( 'xprofile_admin_field_name_legend', array( $this, 'admin_field_legend' ) );
+
 		// Fire plugin loaded hook
 		do_action( 'bp_xprofile_field_for_member_types_loaded' );
 	}
@@ -368,6 +371,39 @@ final class BP_XProfile_Field_For_Member_Types {
 		// Update changes
 		$this->update_xprofile_member_types( $field->id, 'field', $member_types );
 	}
+
+	/** Admin: Profile Fields *************************************************/
+
+	/**
+	 * Display the selected member types per field on the Profile Fields screen
+	 *
+	 * @since 1.0.0
+	 *
+	 * @uses BP_XProfile_Field_For_Member_Types::get_xprofile_member_types()
+	 * @uses bp_get_meber_types()
+	 * @param BP_XProfile_Field $field Field object
+	 */
+	public function admin_field_legend( $field ) {
+
+		// Bail when the field has no member types
+		if ( ! $member_types = $this->get_xprofile_member_types( $field->id, 'field' ) )
+			return;
+
+		// Get selected type labels
+		$types = bp_get_member_types( array(), 'objects' );
+		$types = array_intersect_key( $types, array_flip( $member_types ) );
+		$types = wp_list_pluck( $types, 'labels' );
+		$types = wp_list_pluck( $types, 'singular_name' );
+
+		if ( in_array( 'none', $member_types ) ) {
+			$types = array_merge( array( __( 'None', 'bp-xprofile-field-for-member-types' ) ), $types );
+		}
+
+		// Construct legend
+		$legend = sprintf( __( 'Member Types: %s', 'bp-xprofile-field-for-member-types' ), implode( ', ', $types ) );
+
+		// Output legend <span>
+		echo '<span class="member-types">(' . $legend . ')</span>';
 	}
 }
 
