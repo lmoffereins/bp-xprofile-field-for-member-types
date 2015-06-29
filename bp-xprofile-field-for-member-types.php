@@ -320,13 +320,13 @@ final class BP_XProfile_Field_For_Member_Types {
 		<div id="for_member_types" class="postbox">
 			<h3><?php _e( 'Member Types', 'bp-xprofile-field-for-member-types' ); ?></h3>
 			<div class="inside">
-				<p class="description"><?php _e( 'Make this field available to users with one of the selected member types. By default, the field is available to all users.', 'bp-xprofile-field-for-member-types' ); ?></p>
+				<p class="description"><?php _e( 'To make this field exclusively available to users, select theirs from the following member types.', 'bp-xprofile-field-for-member-types' ); ?></p>
 
 				<ul>
 					<li>
 						<label>
 							<input name="member-types[]" type="checkbox" value="none" <?php checked( in_array( 'none', $obj_member_types ) ); ?>/>
-							<em><?php _e( 'Without a member type', 'bp-xprofile-field-for-member-types' ); ?></em>
+							<em><?php _e( 'No member type', 'bp-xprofile-field-for-member-types' ); ?></em>
 						</label>
 					</li>
 
