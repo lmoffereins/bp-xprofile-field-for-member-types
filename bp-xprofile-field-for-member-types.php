@@ -97,8 +97,8 @@ final class BP_XProfile_Field_For_Member_Types {
 	 */
 	private function setup_actions() {
 
-		// Require BP 2.3 and the XProfile component
-		if ( version_compare( buddypress()->version, '2.3', '<' ) || ! bp_is_active( 'xprofile' ) )
+		// Require BP 2.2 and the XProfile component
+		if ( version_compare( buddypress()->version, '2.2', '<' ) || ! bp_is_active( 'xprofile' ) )
 			return;
 
 		// Plugin
