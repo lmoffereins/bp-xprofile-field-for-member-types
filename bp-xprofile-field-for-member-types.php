@@ -97,8 +97,8 @@ final class BP_XProfile_Field_For_Member_Types {
 	 */
 	private function setup_actions() {
 
-		// Bail when BP < 2.2 or xprofile component is not active
-		if ( version_compare( buddypress()->version, '2.2', '<' ) || ! bp_is_active( 'xprofile' ) )
+		// Require BP 2.3 and the XProfile component
+		if ( version_compare( buddypress()->version, '2.3', '<' ) || ! bp_is_active( 'xprofile' ) )
 			return;
 
 		// Plugin
@@ -186,7 +186,7 @@ final class BP_XProfile_Field_For_Member_Types {
 	 *
 	 * @uses bp_displayed_user_id()
 	 * @uses BP_XProfile_Field_For_Member_Types::get_member_types()
-	 * @uses BP_XProfile_Field_For_Member_Types::has_user_member_type()
+	 * @uses bp_has_member_type()
 	 *
 	 * @param int|object $field_group_id Field ID or 
 	 * @param int $user_id Optional. User ID. Defaults to the displayed user.
@@ -211,53 +211,19 @@ final class BP_XProfile_Field_For_Member_Types {
 		// Get the field's member types
 		if ( $member_types = $this->get_member_types( $field_id, 'field' ) ) {
 
-			// Return whether the user passes the member type requirement
-			return $this->has_user_member_type( $member_types, $user_id );
+			// Validate user by the field's member types
+			foreach ( $member_types as $member_type ) {
+				if ( bp_has_member_type( $user_id, $member_type ) ) {
+					return true;
+				}
+			}
+
+			// No member type matched: user does not validate
+			return false;
 
 		// No member types were assigned, so user validates
 		} else {
 			return true;
-		}
-	}
-
-	/**
-	 * Return whether the given user has any of the provided member types
-	 *
-	 * This might be replaced with an implementation in Core's Member Types API.
-	 *
-	 * @since 1.0.0
-	 * 
-	 * @param string|array $member_type Member type name(s)
-	 * @param int $user_id Optional. User ID
-	 * @param bool $all Optional. Whether to check for presence of all provided member types
-	 * @return bool Whether the user has any of the member types
-	 */
-	public function has_user_member_type( $member_type = '', $user_id = 0, $all = false ) {
-
-		// Bail when no member type was provided
-		if ( empty( $member_type ) ) {
-			return false;
-		}
-
-		// Default to the current user
-		if ( empty( $user_id ) ) {
-			$user_id = get_current_user_id();
-		}
-
-		// Compute diff between required and the user's member types
-		$type_diff = array_diff( (array) $member_type, (array) bp_get_member_type( $user_id, false ) );
-
-		// Searched one and found one
-		if ( ! $all && count( $type_diff ) < count( $member_type ) ) {
-			return true;
-
-		// Searched all and found all
-		} elseif ( $all && empty( $type_diff ) ) {
-			return true;
-
-		// Found none
-		} else {
-			return false;
 		}
 	}
 
