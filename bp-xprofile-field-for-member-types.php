@@ -188,7 +188,7 @@ final class BP_XProfile_Field_For_Member_Types {
 	 * @since 1.0.0
 	 *
 	 * @uses bp_displayed_user_id()
-	 * @uses BP_XProfile_Field_For_Member_Types::get_member_types()
+	 * @uses BP_XProfile_Field_For_Member_Types::get_xprofile_member_types()
 	 * @uses bp_get_member_type()
 	 *
 	 * @param int|object $field_group_id Field ID or 
@@ -212,7 +212,7 @@ final class BP_XProfile_Field_For_Member_Types {
 		}
 
 		// Get the field's member types
-		if ( $member_types = $this->get_member_types( $field_id, 'field' ) ) {
+		if ( $member_types = $this->get_xprofile_member_types( $field_id, 'field' ) ) {
 
 			// Default to 'none' when the user has no member type(s)
 			if ( ! $u_member_types = bp_get_member_type( $user_id, false ) ) {
@@ -244,7 +244,7 @@ final class BP_XProfile_Field_For_Member_Types {
 	 * @param string $meta_type Type of meta, either 'field' or 'group'
 	 * @return array Field or group member type names
 	 */
-	public function get_member_types( $object_id, $meta_type ) {
+	public function get_xprofile_member_types( $object_id, $meta_type ) {
 
 		// Get all meta instances of 'member-type' meta
 		$meta = bp_xprofile_get_meta( $object_id, $meta_type, 'member-type', false );
@@ -262,7 +262,7 @@ final class BP_XProfile_Field_For_Member_Types {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @uses BP_XProfile_Field_For_Member_Types::get_member_types()
+	 * @uses BP_XProfile_Field_For_Member_Types::get_xprofile_member_types()
 	 * @uses bp_xprofile_delete_meta()
 	 * @uses bp_xprofile_add_meta()
 	 * 
@@ -271,8 +271,8 @@ final class BP_XProfile_Field_For_Member_Types {
 	 * @param array $selected_types Selected member type names
 	 * @return bool Update success or failure
 	 */
-	public function update_member_types( $object_id, $meta_type, $selected_types ) {
-		$current_types = $this->get_member_types( $object_id, $meta_type );
+	public function update_xprofile_member_types( $object_id, $meta_type, $selected_types ) {
+		$current_types = $this->get_xprofile_member_types( $object_id, $meta_type );
 
 		// Delete unselected types
 		foreach ( $current_types as $type ) {
@@ -313,7 +313,7 @@ final class BP_XProfile_Field_For_Member_Types {
 			return;
 
 		// Get the field's member types
-		$obj_member_types = ! empty( $field->id ) ? $this->get_member_types( $field->id, 'field' ) : array();
+		$obj_member_types = ! empty( $field->id ) ? $this->get_xprofile_member_types( $field->id, 'field' ) : array();
 
 		?>
 
@@ -352,7 +352,7 @@ final class BP_XProfile_Field_For_Member_Types {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @uses BP_Xprofile_For_Member_Types::update_member_types()
+	 * @uses BP_Xprofile_For_Member_Types::update_xprofile_member_types()
 	 *
 	 * @param BP_XProfile_Field $field Saved XProfile field
 	 */
@@ -366,7 +366,8 @@ final class BP_XProfile_Field_For_Member_Types {
 		$member_types = isset( $_REQUEST['member-types'] ) ? (array) $_REQUEST['member-types'] : array();
 
 		// Update changes
-		$this->update_member_types( $field->id, 'field', $member_types );
+		$this->update_xprofile_member_types( $field->id, 'field', $member_types );
+	}
 	}
 }
 
