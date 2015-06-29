@@ -171,7 +171,6 @@ final class BP_XProfile_Field_For_Member_Types {
 			// Is displayed user not a member? Remove field
 			if ( ! $this->has_user_field_member_type( $field_id, $displayed_user_id ) ) {
 				$hidden_fields[] = $field_id;
-				continue;
 			}
 		}
 
