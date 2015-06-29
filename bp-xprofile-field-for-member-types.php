@@ -145,6 +145,8 @@ final class BP_XProfile_Field_For_Member_Types {
 		load_plugin_textdomain( $this->domain, false, 'bp-xprofile-field-for-member-types/languages' );
 	}
 
+	/** Filters ***************************************************************/
+
 	/**
 	 * Return the field ids that are not visible for the displayed and current user
 	 *
@@ -186,7 +188,7 @@ final class BP_XProfile_Field_For_Member_Types {
 	 *
 	 * @uses bp_displayed_user_id()
 	 * @uses BP_XProfile_Field_For_Member_Types::get_member_types()
-	 * @uses bp_has_member_type()
+	 * @uses bp_get_member_type()
 	 *
 	 * @param int|object $field_group_id Field ID or 
 	 * @param int $user_id Optional. User ID. Defaults to the displayed user.
@@ -211,15 +213,16 @@ final class BP_XProfile_Field_For_Member_Types {
 		// Get the field's member types
 		if ( $member_types = $this->get_member_types( $field_id, 'field' ) ) {
 
-			// Validate user by the field's member types
-			foreach ( $member_types as $member_type ) {
-				if ( bp_has_member_type( $user_id, $member_type ) ) {
-					return true;
-				}
+			// Default to 'none' when the user has no member type(s)
+			if ( ! $u_member_types = bp_get_member_type( $user_id, false ) ) {
+				$u_member_types = array( 'none' );
 			}
 
-			// No member type matched: user does not validate
-			return false;
+			// Validate user by the field's member types
+			$validate = array_intersect( $member_types, $u_member_types );
+
+			// Return whether we have any matches
+			return ! empty( $validate );
 
 		// No member types were assigned, so user validates
 		} else {
@@ -319,11 +322,18 @@ final class BP_XProfile_Field_For_Member_Types {
 				<p class="description"><?php _e( 'When no member type is selected, the field applies for all members.', 'bp-xprofile-field-for-member-types' ); ?></p>
 
 				<ul>
+					<li>
+						<label>
+							<input name="member-types[]" type="checkbox" value="none" <?php checked( in_array( 'none', $obj_member_types ) ); ?>/>
+							<em><?php _e( 'Without a member type', 'bp-xprofile-field-for-member-types' ); ?></em>
+						</label>
+					</li>
+
 					<?php foreach ( $member_types as $member_type ) : ?>
 					<li>
 						<label>
 							<input name="member-types[]" type="checkbox" value="<?php echo $member_type->name; ?>" <?php checked( in_array( $member_type->name, $obj_member_types ) ); ?>/>
-							<?php echo $member_type->labels['name']; ?>
+							<?php echo $member_type->labels['singular_name']; ?>
 						</label>
 					</li>
 					<?php endforeach; ?>
