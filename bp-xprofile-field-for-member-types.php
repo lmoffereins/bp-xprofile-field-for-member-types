@@ -206,8 +206,8 @@ final class BP_XProfile_Field_For_Member_Types {
 			$field_id = $field_id->id;
 		}
 
-		// Bail when this is the primary field
-		if ( 1 == $field_id )
+		// The primary field is for all, so bail
+		if ( 1 === (int) $field_id )
 			return true;
 
 		// Default to displayed user
@@ -309,7 +309,7 @@ final class BP_XProfile_Field_For_Member_Types {
 	public function field_display_member_type_metabox( $field ) {
 
 		// The primary field is for all, so bail
-		if ( 1 == $field->id )
+		if ( 1 === (int) $field->id )
 			return;
 
 		// Bail when no member types are registered
