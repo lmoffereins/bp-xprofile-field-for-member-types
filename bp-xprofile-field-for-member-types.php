@@ -366,6 +366,15 @@ final class BP_XProfile_Field_For_Member_Types {
 		if ( ! isset( $_REQUEST['_wpnonce_for_member_types'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce_for_member_types'], 'member-types' ) )
 			return;
 
+		/**
+		 * The created field's id is unknown at this point. The following is a buggy fix
+		 * while we're waiting on a fix for. Watch #BP6545 closely.
+		 */
+		if ( empty( $field->id ) ) {
+			global $wpdb;
+			$field->id = $wpdb->insert_id;
+		}
+
 		// Get posted values
 		$member_types = isset( $_REQUEST['member-types'] ) ? (array) $_REQUEST['member-types'] : array();
 
