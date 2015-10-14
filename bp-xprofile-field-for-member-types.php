@@ -185,13 +185,22 @@ final class BP_XProfile_Field_For_Member_Types {
 		$bp = buddypress();
 
 		// Pre-1.1.0
-		if ( ! $version ) {
+		if ( false === $version ) {
 
-			// Update our field meta keys from 'member-type' to 'member_type'
-			$rows = $wpdb->update(
+			// Update: use an underscore in the plugin's field meta keys
+			$wpdb->update(
 				$bp->profile->table_name_meta,
 				array( 'meta_key' => 'member_type' ),
 				array( 'meta_key' => 'member-type', 'object_type' => 'field' ),
+				array( '%s' ),
+				array( '%s', '%s' )
+			);
+
+			// Update: use 'null' instead of 'none'
+			$wpdb->update(
+				$bp->profile->table_name_meta,
+				array( 'meta_value' => 'null' ),
+				array( 'meta_value' => 'none', 'object_type' => 'field' ),
 				array( '%s' ),
 				array( '%s', '%s' )
 			);
@@ -268,9 +277,9 @@ final class BP_XProfile_Field_For_Member_Types {
 		// Get the field's member types
 		if ( $member_types = $this->get_xprofile_member_types( $field_id, 'field' ) ) {
 
-			// Default to 'none' when the user has no member type(s)
+			// Default to 'null' when the user has no member type(s)
 			if ( ! $u_member_types = bp_get_member_type( $user_id, false ) ) {
-				$u_member_types = array( 'none' );
+				$u_member_types = array( 'null' );
 			}
 
 			// Validate user by the field's member types
@@ -422,16 +431,9 @@ final class BP_XProfile_Field_For_Member_Types {
 		<div id="for_member_types" class="postbox">
 			<h3><?php _e( 'Member Types', 'bp-xprofile-field-for-member-types' ); ?></h3>
 			<div class="inside">
-				<p class="description"><?php _e( 'To make this field exclusively available to users, select theirs from the following member types.', 'bp-xprofile-field-for-member-types' ); ?></p>
+				<p class="description"><?php _e( 'This field should be available to:', 'bp-xprofile-field-for-member-types' ); ?></p>
 
 				<ul>
-					<li>
-						<label>
-							<input name="member-types[]" type="checkbox" value="none" <?php checked( in_array( 'none', $obj_member_types ) ); ?>/>
-							<em><?php _e( 'No member type', 'bp-xprofile-field-for-member-types' ); ?></em>
-						</label>
-					</li>
-
 					<?php foreach ( $member_types as $member_type ) : ?>
 					<li>
 						<label>
@@ -440,6 +442,13 @@ final class BP_XProfile_Field_For_Member_Types {
 						</label>
 					</li>
 					<?php endforeach; ?>
+
+					<li>
+						<label>
+							<input name="member-types[]" type="checkbox" value="null" <?php checked( in_array( 'null', $obj_member_types ) ); ?>/>
+							<em><?php _e( 'Users with no member type', 'bp-xprofile-field-for-member-types' ); ?></em>
+						</label>
+					</li>
 				</ul>
 			</div>
 
@@ -503,13 +512,13 @@ final class BP_XProfile_Field_For_Member_Types {
 		$types = wp_list_pluck( $types, 'labels' );
 		$types = wp_list_pluck( $types, 'singular_name' );
 
-		if ( in_array( 'none', $member_types ) ) {
+		if ( in_array( 'null', $member_types ) ) {
 			/* translators: 'No member type' selection */
-			$types = array_merge( array( __( 'None', 'bp-xprofile-field-for-member-types' ) ), $types );
+			$types[] = __( 'Users with no member type', 'bp-xprofile-field-for-member-types' );
 		}
 
 		// Construct legend
-		$legend = sprintf( __( 'Member Types: %s', 'bp-xprofile-field-for-member-types' ), implode( ', ', $types ) );
+		$legend = sprintf( __( 'Member types: %s', 'bp-xprofile-field-for-member-types' ), implode( ', ', $types ) );
 
 		// Output legend <span>
 		echo '<span class="member-types">(' . $legend . ')</span>';
