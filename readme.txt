@@ -16,7 +16,7 @@ If you download BP XProfile Field For Member Types manually, make sure it is upl
 == Changelog ==
 
 = 1.1.0 =
-* Bring the plugin logic in sync with BP 2.4, which will make this plugin obsolete. See https://buddypres.trac.wordpress.org/changeset/10022.
+* Bring the plugin logic in sync with BP 2.4, which will make this plugin obsolete. See https://buddypress.trac.wordpress.org/changeset/10022.
 
 = 1.0.1 =
 * Fixed setting member types for new a new field. Created a temporary workaround for #BP6545. See #2.
