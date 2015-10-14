@@ -507,23 +507,45 @@ final class BP_XProfile_Field_For_Member_Types {
 	 */
 	public function admin_field_legend( $field ) {
 
-		// Bail when the field has no member types
-		if ( ! $member_types = $this->get_xprofile_member_types( $field->id, 'field' ) )
+		// The primary field is for all, so bail
+		if ( 1 === (int) $field->id )
 			return;
 
-		// Get selected type labels
-		$types = bp_get_member_types( array(), 'objects' );
-		$types = array_intersect_key( $types, array_flip( $member_types ) );
-		$types = wp_list_pluck( $types, 'labels' );
-		$types = wp_list_pluck( $types, 'singular_name' );
+		// Get selected member types
+		$member_types = $this->get_xprofile_member_types( $field->id, 'field' );
 
-		if ( in_array( 'null', $member_types ) ) {
-			/* translators: 'No member type' selection */
-			$types[] = __( 'Users with no member type', 'bp-xprofile-field-for-member-types' );
+		// Types selected
+		if ( ! empty( $member_types ) ) {
+
+			// Get member type objects
+			$types = bp_get_member_types( array(), 'objects' );
+
+			// Add 'null' type
+			$types['null'] = array( 
+				'labels' => array( 
+					'singular_name' => __( 'Users with no member type', 'bp-xprofile-field-for-member-types' )
+				)
+			);
+
+			sort( $member_types );
+			ksort( $types );
+
+			// If the field applies to all type, show no mesage
+			if ( $member_types === array_keys( $types ) )
+				return;
+
+			// Get selected type labels
+			$types = array_intersect_key( $types, array_flip( $member_types ) );
+			$types = wp_list_pluck( $types, 'labels' );
+			$types = wp_list_pluck( $types, 'singular_name' );
+
+			// Construct legend
+			$legend = sprintf( __( 'Member types: %s', 'bp-xprofile-field-for-member-types' ), implode( ', ', $types ) );
+
+		// No type selected
+		} else {
+			$legend = __( 'Unavailable to all members', 'bp-xprofile-field-for-member-types' );
 		}
-
-		// Construct legend
-		$legend = sprintf( __( 'Member types: %s', 'bp-xprofile-field-for-member-types' ), implode( ', ', $types ) );
 
 		// Output legend <span>
 		echo '<span class="member-types">(' . $legend . ')</span>';
