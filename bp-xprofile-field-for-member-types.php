@@ -250,8 +250,8 @@ final class BP_XProfile_Field_For_Member_Types {
 	 */
 	public function get_xprofile_member_types( $object_id, $meta_type ) {
 
-		// Get all meta instances of 'member-type' meta
-		$meta = bp_xprofile_get_meta( $object_id, $meta_type, 'member-type', false );
+		// Get all meta instances of 'member_type' meta
+		$meta = bp_xprofile_get_meta( $object_id, $meta_type, 'member_type', false );
 
 		// Sanitize meta
 		if ( empty( $meta ) ) {
@@ -281,14 +281,14 @@ final class BP_XProfile_Field_For_Member_Types {
 		// Delete unselected types
 		foreach ( $current_types as $type ) {
 			if ( ! in_array( $type, $selected_types ) ) {
-				bp_xprofile_delete_meta( $object_id, $meta_type, 'member-type', $type, false );
+				bp_xprofile_delete_meta( $object_id, $meta_type, 'member_type', $type, false );
 			}
 		}
 
 		// Add new selected types
 		foreach ( $selected_types as $type ) {
 			if ( ! in_array( $type, $current_types ) ) {
-				bp_xprofile_add_meta( $object_id, $meta_type, 'member-type', $type, false );
+				bp_xprofile_add_meta( $object_id, $meta_type, 'member_type', $type, false );
 			}
 		}
 
