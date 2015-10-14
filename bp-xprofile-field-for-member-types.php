@@ -293,6 +293,7 @@ final class BP_XProfile_Field_For_Member_Types {
 	 * @since 1.0.0
 	 *
 	 * @uses bp_xprofile_get_meta()
+	 * @uses bp_get_member_types()
 	 *
 	 * @param int $object_id Field or group ID
 	 * @param string $meta_type Type of meta, either 'field' or 'group'
@@ -301,14 +302,35 @@ final class BP_XProfile_Field_For_Member_Types {
 	public function get_xprofile_member_types( $object_id, $meta_type ) {
 
 		// Get all meta instances of 'member_type' meta
-		$meta = bp_xprofile_get_meta( $object_id, $meta_type, 'member_type', false );
+		$types = bp_xprofile_get_meta( $object_id, $meta_type, 'member_type', false );
 
-		// Sanitize meta
-		if ( empty( $meta ) ) {
-			$meta = array();
+		// If `$types` is not an array, it probably means it is a new field (id=0)
+		if ( ! is_array( $types ) ) {
+			$types = array();
 		}
 
-		return $meta;
+		// If '_none' is found in the array, it overrides all other types
+		if ( ! in_array( '_none', $types ) ) {
+			$registered_types   = array_values( bp_get_member_types() );
+
+			foreach ( $types as $type ) {
+				if ( 'null' === $type || in_array( $type, $registered_types ) ) {
+					$types[] = $type;
+				}
+			}
+
+			// If no member types have been saved, interpret as *all* member types
+			if ( empty( $types ) ) {
+				$types   = $registered_types;
+
+				// + the 'null' type, ie users without a type
+				$types[] = 'null';
+			}
+		} else {
+			$types = array();
+		}
+
+		return $types;
 	}
 
 	/**
@@ -316,9 +338,10 @@ final class BP_XProfile_Field_For_Member_Types {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @uses BP_XProfile_Field_For_Member_Types::get_xprofile_member_types()
+	 * @uses bp_get_member_type_object()
 	 * @uses bp_xprofile_delete_meta()
 	 * @uses bp_xprofile_add_meta()
+	 * @uses bp_get_member_types()
 	 * 
 	 * @param int $object_id Field or group ID
 	 * @param string $meta_type Type of meta, either 'field' or 'group'
@@ -326,19 +349,44 @@ final class BP_XProfile_Field_For_Member_Types {
 	 * @return bool Update success or failure
 	 */
 	public function update_xprofile_member_types( $object_id, $meta_type, $selected_types ) {
-		$current_types = $this->get_xprofile_member_types( $object_id, $meta_type );
 
-		// Delete unselected types
-		foreach ( $current_types as $type ) {
-			if ( ! in_array( $type, $selected_types ) ) {
-				bp_xprofile_delete_meta( $object_id, $meta_type, 'member_type', $type, false );
+		// Unset invalid types
+		$types = array();
+		foreach ( $selected_types as $type ) {
+			if ( 'null' === $type || bp_get_member_type_object( $type ) ) {
+				$types[] = $type;
 			}
 		}
 
-		// Add new selected types
-		foreach ( $selected_types as $type ) {
-			if ( ! in_array( $type, $current_types ) ) {
-				bp_xprofile_add_meta( $object_id, $meta_type, 'member_type', $type, false );
+		// Delete all existing types before adding new ones
+		bp_xprofile_delete_meta( $object_id, $meta_type, 'member_type' );
+
+		/*
+         * We interpret an empty array as disassociating the field from all types. This is
+         * represented internally with the '_none' flag.
+         */
+		if ( empty( $types ) ) {
+			return bp_xprofile_add_meta( $object_id, $meta_type, 'member_type', '_none' );
+		}
+
+		/*
+		 * Unrestricted fields are represented in the database as having no 'member_type'.
+		 * We detect whether a field is being set to unrestricted by checking whether the
+		 * list of types passed to the method is the same as the list of registered types,
+		 * plus the 'null' pseudo-type.
+		 */
+		$_rtypes  = bp_get_member_types();
+		$rtypes   = array_values( $_rtypes );
+		$rtypes[] = 'null';
+
+		sort( $types );
+		sort( $rtypes );
+
+		// Only save if this is a restricted field.
+		if ( $types !== $rtypes ) {
+			// Save new types.
+			foreach ( $types as $type ) {
+				bp_xprofile_add_meta( $object_id, $meta_type, 'member_type', $type );
 			}
 		}
 
