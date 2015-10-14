@@ -97,9 +97,14 @@ final class BP_XProfile_Field_For_Member_Types {
 	 * @uses bp_is_active() To check whether xprofile component is active
 	 */
 	private function setup_actions() {
+		$bp = buddypress();
+
+		// Don't run this plugin using BP 2.4+
+		if ( version_compare( $bp->version, '2.4', '>=' )
+			return;
 
 		// Require BP 2.2 and the XProfile component
-		if ( version_compare( buddypress()->version, '2.2', '<' ) || ! bp_is_active( 'xprofile' ) )
+		if ( version_compare( $bp->version, '2.2', '<' ) || ! bp_is_active( 'xprofile' ) )
 			return;
 
 		// Plugin
