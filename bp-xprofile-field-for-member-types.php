@@ -99,12 +99,12 @@ final class BP_XProfile_Field_For_Member_Types {
 	private function setup_actions() {
 		$bp = buddypress();
 
-		// Don't run this plugin using BP 2.4+
-		if ( version_compare( $bp->version, '2.4', '>=' )
-			return;
-
 		// Require BP 2.2 and the XProfile component
 		if ( version_compare( $bp->version, '2.2', '<' ) || ! bp_is_active( 'xprofile' ) )
+			return;
+
+		// Bail when using BP 2.4+, which already contains this plugin's logic
+		if ( is_callable( array( 'BP_XProfile_Field', 'get_member_types' ) ) )
 			return;
 
 		// Plugin
