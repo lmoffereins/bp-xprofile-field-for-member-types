@@ -13,7 +13,7 @@
  * Plugin Name:       BP XProfile Field For Member Types
  * Description:       Manage member type specific XProfile fields in BuddyPress
  * Plugin URI:        https://github.com/lmoffereins/bp-xprofile-field-for-member-types
- * Version:           1.1.0
+ * Version:           1.1.1
  * Author:            Laurens Offereins
  * Author URI:        https://github.com/lmoffereins
  * Network:           true
@@ -72,7 +72,7 @@ final class BP_XProfile_Field_For_Member_Types {
 
 		/** Version **************************************************/
 
-		$this->version    = '1.1.0';
+		$this->version    = '1.1.1';
 
 		/** Plugin ***************************************************/
 
