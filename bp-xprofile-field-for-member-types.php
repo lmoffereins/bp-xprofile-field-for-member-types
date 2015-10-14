@@ -3,7 +3,7 @@
 /**
  * The BP XProfile Field For Member Types Plugin
  *
- * Requires BP 2.2
+ * Requires BuddyPress 2.2
  *
  * @package BP XProfile Field For Member Types
  * @subpackage Main
@@ -103,7 +103,8 @@ final class BP_XProfile_Field_For_Member_Types {
 			return;
 
 		// Plugin
-		add_action( 'init', array( $this, 'load_textdomain' ) );
+		add_action( 'init',       array( $this, 'load_textdomain'  ) );
+		add_action( 'admin_init', array( $this, 'check_for_update' ) );
 
 		// Main Logic
 		add_filter( 'bp_xprofile_get_hidden_fields_for_user', array( $this, 'filter_hidden_fields' ), 10, 3 );
@@ -149,6 +150,55 @@ final class BP_XProfile_Field_For_Member_Types {
 
 		// Look in global /wp-content/languages/plugins/ and local plugin languages folder
 		load_plugin_textdomain( $this->domain, false, 'bp-xprofile-field-for-member-types/languages' );
+	}
+
+	/**
+	 * Check if the plugin needs to run the update logic
+	 *
+	 * @since 1.1.0
+	 *
+	 * @uses get_site_option()
+	 * @uses BP_XProfile_Field_For_Member_Types::version_updater()
+	 */
+	public function check_for_update() {
+
+		// Get current version in DB
+		$version = get_site_option( '_bp_xprofile_field_for_member_types', false );
+
+		// Run updater when we're updating
+		if ( ! $version || version_compare( $version, $this->version, '<' ) ) {
+			$this->version_updater( $version );
+		}
+	}
+
+	/**
+	 * Run logic when updating the plugin
+	 *
+	 * @since 1.1.0
+	 *
+	 * @uses WPDB::update()
+	 * @uses update_site_option()
+	 */
+	public function version_updater( $version = null ) {
+		global $wpdb;
+
+		$bp = buddypress();
+
+		// Pre-1.1.0
+		if ( ! $version ) {
+
+			// Update our field meta keys from 'member-type' to 'member_type'
+			$rows = $wpdb->update(
+				$bp->profile->table_name_meta,
+				array( 'meta_key' => 'member_type' ),
+				array( 'meta_key' => 'member-type', 'object_type' => 'field' ),
+				array( '%s' ),
+				array( '%s', '%s' )
+			);
+		}
+
+		// Update current version in DB
+		update_site_option( '_bp_xprofile_field_for_member_types', $this->version );
 	}
 
 	/** Main Logic ************************************************************/
