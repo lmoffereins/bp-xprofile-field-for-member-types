@@ -97,10 +97,9 @@ final class BP_XProfile_Field_For_Member_Types {
 	 * @uses bp_is_active() To check whether xprofile component is active
 	 */
 	private function setup_actions() {
-		$bp = buddypress();
 
 		// Require BP 2.2 and the XProfile component
-		if ( version_compare( $bp->version, '2.2', '<' ) || ! bp_is_active( 'xprofile' ) )
+		if ( version_compare( buddypress()->version, '2.2', '<' ) || ! bp_is_active( 'xprofile' ) )
 			return;
 
 		// Bail when using BP 2.4+, which already contains this plugin's logic
@@ -429,20 +428,20 @@ final class BP_XProfile_Field_For_Member_Types {
 			return;
 
 		// Get the field's member types
-		$obj_member_types = ! empty( $field->id ) ? $this->get_xprofile_member_types( $field->id, 'field' ) : array();
+		$field_member_types = ! empty( $field->id ) ? $this->get_xprofile_member_types( $field->id, 'field' ) : array();
 
 		?>
 
 		<div id="for_member_types" class="postbox">
 			<h3><?php _e( 'Member Types', 'bp-xprofile-field-for-member-types' ); ?></h3>
 			<div class="inside">
-				<p class="description"><?php _e( 'This field should be available to:', 'bp-xprofile-field-for-member-types' ); ?></p>
+				<p><?php _e( 'This field should be available to:', 'bp-xprofile-field-for-member-types' ); ?></p>
 
 				<ul>
 					<?php foreach ( $member_types as $member_type ) : ?>
 					<li>
 						<label>
-							<input name="member-types[]" type="checkbox" value="<?php echo $member_type->name; ?>" <?php checked( in_array( $member_type->name, $obj_member_types ) ); ?>/>
+							<input name="member-types[]" type="checkbox" class="member-type-selector" value="<?php echo $member_type->name; ?>" <?php checked( in_array( $member_type->name, $field_member_types ) ); ?>/>
 							<?php echo $member_type->labels['singular_name']; ?>
 						</label>
 					</li>
@@ -450,11 +449,57 @@ final class BP_XProfile_Field_For_Member_Types {
 
 					<li>
 						<label>
-							<input name="member-types[]" type="checkbox" value="null" <?php checked( in_array( 'null', $obj_member_types ) ); ?>/>
-							<em><?php _e( 'Users with no member type', 'bp-xprofile-field-for-member-types' ); ?></em>
+							<input name="member-types[]" type="checkbox" class="member-type-selector" value="null" <?php checked( in_array( 'null', $field_member_types ) ); ?>/>
+							<?php _e( 'Users with no member type', 'bp-xprofile-field-for-member-types' ); ?>
 						</label>
 					</li>
 				</ul>
+
+				<p class="description member-type-none-notice<?php if ( ! empty( $field_member_types ) ) : ?> hidden<?php endif; ?>"><?php _e( 'Unavailable to all members.', 'buddypress' ) ?></p>
+
+				<style>
+					.member-type-none-notice {
+						color: #f00 !important;
+					}
+				</style>
+
+				<script>
+					/**
+					 * @summary Toggles "no member type" notice.
+					 *
+					 * @since 1.1.2
+					 * @see BuddyPress (2.4.0)
+					 */
+					function toggle_no_member_type_notice() {
+						var $member_type_checkboxes = jQuery( 'input.member-type-selector' );
+
+						// No checkboxes? Nothing to do. 
+						if ( ! $member_type_checkboxes.length )
+							return;
+
+						var has_checked = false;
+						$member_type_checkboxes.each( function() {
+							if ( jQuery( this ).is( ':checked' ) ) {
+								has_checked = true;
+								return false;
+							}
+						});
+
+						if ( has_checked ) {
+							jQuery( 'p.member-type-none-notice' ).addClass( 'hidden' );
+						} else {
+							jQuery( 'p.member-type-none-notice' ).removeClass( 'hidden' );
+						}
+					}
+
+					jQuery( document ).ready( function( $ ) {
+						// Set up the notice that shows when no member types are selected for a field. 
+						toggle_no_member_type_notice();
+						$( 'input.member-type-selector' ).on( 'change', function() {
+							toggle_no_member_type_notice();
+						});
+					});
+				</script>
 			</div>
 
 			<?php wp_nonce_field( 'member-types', '_wpnonce_for_member_types' ); ?>
